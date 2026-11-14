@@ -2,7 +2,7 @@
 # (n900-devkit). Included by the Makefile of the kit itself and by the main repository (nokia-n900-apps, where the kit is the folder devkit/).
 # Needs mk/common.mk (settings, INSIDE, colours, help) included first. Conventions as in mk/common.mk: a description variable named like the target.
 
-DEVKIT_TARGETS := up down status enter toolchain sysroot hello emu-test emu-shots locale-overlay hildon-overlay emulator emulator-stop hildon-run
+DEVKIT_TARGETS := up down status enter toolchain sysroot arm-python hello emu-test emu-shots locale-overlay hildon-overlay emulator emulator-stop hildon-run
 .PHONY: $(DEVKIT_TARGETS)
 
 UP := Create and start the workshop (first run)
@@ -28,6 +28,10 @@ toolchain:
 SYSROOT := Download the Fremantle SDK sysroot into ./sysroot
 sysroot:
 	$(WSRUN) sysroot
+
+ARM-PYTHON := Download Python 3.11 and hildonlite for the N900 (packages of the project apt repository) into ./sysroot/opt/python3, for hildon-run (no cross-build)
+arm-python:
+	$(WSRUN) arm-python
 
 HELLO := Build and run hello.c (qemu-user, glibc 2.5)
 hello:

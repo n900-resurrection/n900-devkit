@@ -34,7 +34,13 @@ if [ -n "${APP:-}" ]; then
     . "$PROJ/apps/$APP/hildon-run.sh"
     set -- "${RUN_SCRIPT:?}" "$@"
 fi
-PY="${PY:-$PROJ/build/out/python3-3.11.18/root/opt/python3}"
+# The ARM Python 3: PY=<dir> wins; else the cross-built one (build/out/python3-*, nokia-n900-apps), else the one from the repository (make arm-python)
+if [ -z "${PY:-}" ]; then
+    for c in "$PROJ"/build/out/python3-3.11.*/root/opt/python3 "$SR/opt/python3"; do
+        [ -x "$c/bin/python3.11" ] && { PY="$c"; break; }
+    done
+    : "${PY:?no ARM Python 3 found: make arm-python (downloads it from the apt repository), or build it with make python3 in nokia-n900-apps}"
+fi
 # LC_ALL=C: the glibc 2.5 of the sysroot cannot read the locale files of the host.
 # GTK2_RC_FILES: the theme the phone chooses through xsettings (hildon-desktop is not running here).
 export DISPLAY="$D" PYTHONHOME="$PY" QEMU_LD_PREFIX="$PROJ/sysroot" LC_ALL=C LANG=C \

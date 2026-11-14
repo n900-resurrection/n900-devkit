@@ -8,4 +8,6 @@ actions:
   # Python libraries for yt-dlp and gPodder 3 (pure Python, run later under the ARM Python 3.11): build/pylibs
   pylibs: pip3 install --break-system-packages --upgrade --target build/pylibs yt-dlp yt-dlp-ejs podcastparser mygpoclient
   sysroot: python3 scripts/fetch_sysroot.py
+  # Python 3.11 and hildonlite for the N900 (packages of the apt repository of the project) into sysroot/opt/python3: for the emulator, no cross-build
+  arm-python: python3 scripts/fetch_python3.py
   cpp-hello: mkdir -p build && scripts/maemo-gcc -O2 -o build/hello src/c/hello/hello.c && file build/hello && qemu-arm -L /project/sysroot build/hello

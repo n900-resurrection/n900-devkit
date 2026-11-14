@@ -21,6 +21,7 @@ git clone https://github.com/n900-resurrection/n900-devkit.git
 cd n900-devkit
 make up toolchain sysroot            # the container, the toolchain, the sysroot (once, a few hundred MB)
 make hello                           # build and run a C program for the N900 under qemu-user
+make arm-python                      # Python 3.11 and hildonlite for the N900, from the apt repository of the project (no cross-build)
 make hildon-overlay DEVICE=root@192.168.1.50    # theme, fonts, icons and Python 2.5 from your phone (once, ~100 MB)
 make hildon-run SCRIPT=src/python3/hildon/proof.py SHOT=build/shot.png   # a Hildon program on the virtual screen, screenshot after 6 s
 make emulator                        # the whole emulated desktop, VNC on port 5999 of the container
@@ -33,6 +34,7 @@ make emulator                        # the whole emulated desktop, VNC on port 5
 | `up`, `down`, `status`, `enter` | create/start, stop, show and enter the Workshop |
 | `toolchain` | install the armel cross toolchain and `qemu-user` in it |
 | `sysroot` | download the Fremantle SDK sysroot into `./sysroot` (only the needed packages) |
+| `arm-python` | download Python 3.11 and `python3-hildonlite` (and what they need) from the [apt repository](https://n900-resurrection.github.io/) into `sysroot/opt/python3`; `hildon-run` uses it |
 | `hello` | build and run `src/c/hello/hello.c` (qemu-user, glibc 2.5) |
 | `hildon-overlay` | copy the Hildon theme, fonts, icons and Python 2.5 from the phone into the sysroot |
 | `locale-overlay` | copy the locale archive from the phone (programs such as tmux need it under qemu-user) |
@@ -47,6 +49,7 @@ Makefile, mk/common.mk, mk/devkit.mk   the targets above (mk/ is shared with nok
 .workshop/n900.yaml                    the Workshop: the toolchain action installs everything the scripts need
 scripts/maemo-gcc, maemo-compat.h ...  the cross compiler wrapper and compatibility headers for glibc 2.5
 scripts/fetch_sysroot.py               the sysroot from the mirrors (maemo.plan9.de, maemo.viniciuspaes.com)
+scripts/fetch_python3.py               the ARM Python 3 and hildonlite from our apt repository (SHA-256 checked)
 scripts/hildon-*.sh, hildon-shell.py   the emulator: virtual screen, window manager, top bar and launcher, D-Bus atrapy for Maemo services
 scripts/hildon-stubs/                  replacements of python-osso and conic (they need the Maemo system bus)
 scripts/qemu-*, emu-*                  qemu-user helpers and the tests in an emulated phone
