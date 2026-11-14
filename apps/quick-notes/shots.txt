@@ -1,0 +1,8 @@
+# Scenario of the screenshots of Quick notes (make emu-shots APP=quick-notes): SECONDS ACTION [ARGS], see scripts/emu-shots.sh
+10  shot list
+11  click 300 90
+12  type Buy milk
+13  click 765 90
+15  shot added
+16  key F4
+19  shot menu

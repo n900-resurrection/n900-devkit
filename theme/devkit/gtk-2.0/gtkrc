@@ -26,3 +26,15 @@ style "devkit-dark" {
 }
 class "GtkWidget" style "devkit-dark"
 widget_class "*<GtkTextView>*" style "devkit-dark"
+
+# Text fields and buttons get a slightly lighter face, otherwise they would vanish into the dark background
+style "devkit-input" {
+    base[NORMAL]   = "#2a2a2a"
+    base[ACTIVE]   = "#2a2a2a"
+}
+class "GtkEntry" style "devkit-input"
+style "devkit-button" {
+    bg[NORMAL]     = "#2b2b2b"
+    bg[PRELIGHT]   = "#3a3a3a"
+}
+class "GtkButton" style "devkit-button"

@@ -1,0 +1,83 @@
+#!/opt/python3/bin/python3
+"""Quick notes: a small Hildon application for Python 3 (hildonlite). A text field and the Add button on top, the notes below (tap one to select it),
+the application menu deletes the selected note or all of them. The data side is notes.py."""
+import os
+import sys
+
+HERE = os.path.dirname(os.path.realpath(__file__))
+sys.path.insert(0, HERE)
+import hildonlite as hl      # installed with the package python3-hildonlite (in the emulator: make arm-python)
+import notes as N
+
+KEY_RETURN = 0xff0d
+
+
+def main():
+    if not hl.init():
+        sys.exit("no X display")
+    data = N.load()
+    win = hl.Window("Quick notes")
+    root = hl.VBox(spacing=6)
+
+    top = hl.HBox(spacing=6)                       # the controls are on top, where the thumb reaches them
+    entry = top.add(hl.Entry(""), expand=True)
+    top.add(hl.Button("Add", on_clicked=lambda b: add()))
+    root.add(top)
+    store = hl.ListStore(2)
+    view = hl.ListView(store)
+    area = hl.PannableArea()
+    area.add(view)
+    root.add(area, expand=True)
+
+    def redraw():
+        store.clear()
+        for n in data:
+            store.append([n["text"], N.when(n["ts"])])
+        win.set_title("Quick notes (%s)" % N.summary(data))
+
+    def add():
+        nonlocal data
+        text = entry.get_text()
+        if not text.strip():
+            hl.Banner(win, "Type a note first")
+            return
+        data = N.add(data, text)
+        N.save(data)
+        entry.set_text("")
+        redraw()
+        hl.Banner(win, "Note added")
+
+    def delete_selected():
+        nonlocal data
+        row = view.selected()
+        if not row:
+            hl.Banner(win, "Tap a note first")
+            return
+        index = [r[0] for r in store.rows()].index(row[0])
+        data = N.remove(data, index)
+        N.save(data)
+        redraw()
+
+    def clear_all():
+        nonlocal data
+        if data and hl.confirm(win, "Delete all %d notes?" % len(data)):
+            data = []
+            N.save(data)
+            redraw()
+
+    entry.on_key(lambda keyval, state, hw: add() or True if keyval == KEY_RETURN else False)
+    menu = hl.AppMenu()
+    menu.add("Delete the selected note", lambda b: delete_selected())
+    menu.add("Delete all notes", lambda b: clear_all())
+    menu.add("Quit", lambda b: hl.quit())
+    win.set_menu(menu)
+    win.add(root)
+    redraw()
+    win.show()
+    if os.environ.get("QUICKNOTES_TIMEOUT"):         # tests and screenshots: end by itself
+        hl.timeout(int(os.environ["QUICKNOTES_TIMEOUT"]) * 1000, lambda: hl.quit() or False)
+    hl.main()
+
+
+if __name__ == "__main__":
+    main()

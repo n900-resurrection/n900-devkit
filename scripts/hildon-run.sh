@@ -62,4 +62,8 @@ if [ -n "${PY2:-}" ]; then
     export HILDON_DEVSHELL=1   # buttons Menu/Back + keys F4/Escape (hildon-stubs/sitecustomize.py)
     exec qemu-arm "$PROJ/sysroot/usr/bin/python2.5" "$@"
 fi
+# hildonlite comes with the interpreter from the repository (make arm-python); a cross-built Python (nokia-n900-apps) has none, so the site-packages of the
+# downloaded one are added when they are there
+SP="$SR/opt/python3/lib/python3.11/site-packages"
+if [ "$PY" != "$SR/opt/python3" ] && [ -d "$SP/hildonlite" ]; then export PYTHONPATH="${PYTHONPATH:+$PYTHONPATH:}$SP"; fi
 exec qemu-arm "$PY/bin/python3.11" "$@"

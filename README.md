@@ -12,6 +12,21 @@ Everything you need to **write and try an application for the Nokia N900 (Maemo 
 Nothing from Nokia is stored in this repository, and **no phone is needed**: the sysroot, the ARM Python and the runtime files of the emulator are downloaded
 (from the community mirrors of Maemo and the apt repository of the project). With a phone you can get the exact look (below).
 
+- [n900-devkit](#n900-devkit)
+  - [Quick start](#quick-start)
+  - [Your own application](#your-own-application)
+  - [With and without a phone](#with-and-without-a-phone)
+  - [What is where](#what-is-where)
+  - [Use in the main repository](#use-in-the-main-repository)
+  - [Licence](#licence)
+
+
+## Documentation
+- [docs/getting-started.md](docs/getting-started.md): install, the first run, with and without a phone, starting over, troubleshooting
+- [docs/python-gui.md](docs/python-gui.md): write a GUI application in Python 3 (hildonlite) and try it in the emulator; the example `apps/quick-notes`
+- [docs/emulator.md](docs/emulator.md): the emulated desktop, your application in it, tests and screenshots, limits
+- [docs/cross-compile.md](docs/cross-compile.md): the sysroot, the compiler wrapper, building C programs for Maemo 5
+
 ## Quick start
 
 You need Ubuntu (or another Linux) with [Workshop](https://snapcraft.io/workshop) and LXD (`sudo snap install --channel=6/stable lxd`, `sudo snap install --classic workshop`, `lxd init`).
@@ -80,7 +95,9 @@ theme/devkit/                          the stand-in GTK theme used when the sysr
 scripts/hildon-*.sh, hildon-shell.py   the emulator: virtual screen, window manager, top bar and launcher, D-Bus atrapy for Maemo services
 scripts/hildon-stubs/                  replacements of python-osso and conic (they need the Maemo system bus)
 scripts/qemu-*, emu-*                  qemu-user helpers and the tests in an emulated phone
+apps/quick-notes/                      an example application: Python 3, hildonlite, tests, a screenshot scenario
 src/                                   a hello world in C and a proof of the Hildon emulator in Python 3
+docs/                                  the documentation
 ```
 
 ## Use in the main repository
