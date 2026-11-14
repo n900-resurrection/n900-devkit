@@ -25,6 +25,6 @@ CONF
     dbus-daemon --config-file=/tmp/hildon-emu-bus.conf --fork
 fi
 if ! pgrep -f '[h]ildon-dbus-mocks.py' >/dev/null; then
-    DBUS_SESSION_BUS_ADDRESS="unix:path=$SOCK" setsid python3 /project/scripts/hildon-dbus-mocks.py >/tmp/hildon-dbus-mocks.out 2>&1 &
+    DBUS_SESSION_BUS_ADDRESS="unix:path=$SOCK" setsid python3 "${PROJ:-/project}/scripts/hildon-dbus-mocks.py" >/tmp/hildon-dbus-mocks.out 2>&1 &
     sleep 1
 fi

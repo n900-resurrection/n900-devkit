@@ -2,7 +2,10 @@
 # (n900-devkit). Included by the Makefile of the kit itself and by the main repository (nokia-n900-apps, where the kit is the folder devkit/).
 # Needs mk/common.mk (settings, INSIDE, colours, help) included first. Conventions as in mk/common.mk: a description variable named like the target.
 
-DEVKIT_TARGETS := up down status enter toolchain sysroot arm-python hello emu-test emu-shots locale-overlay hildon-overlay hildon-overlay-download emulator emulator-stop hildon-run
+# APPS_DIR: the applications of the developer, relative to the project: <app>/hildon-run.sh (how the emulator starts one), test.sh, shots.txt
+APPS_DIR ?= apps
+
+DEVKIT_TARGETS := up down status enter toolchain sysroot arm-python hello emu-test emu-shots locale-overlay hildon-overlay hildon-overlay-download emulator emulator-stop hildon-run clean clean-all
 .PHONY: $(DEVKIT_TARGETS)
 
 UP := Create and start the workshop (first run)
@@ -39,11 +42,11 @@ hello:
 
 EMU-TEST := Run apps/<app>/test.sh in the emulated phone (chroot under qemu-user, no phone): make emu-test APP="jq tmux" (default: all apps with test.sh); RESET=1 builds the root again
 emu-test:
-	$(INSIDE) bash -c '$(if $(RESET),/project/scripts/emu-root.sh --reset &&) /project/scripts/emu-test.sh $(if $(APP),$(APP),$(notdir $(patsubst %/,%,$(dir $(wildcard apps/*/test.sh)))))'
+	$(INSIDE) env APPS_DIR=/project/$(APPS_DIR) bash -c '$(if $(RESET),/project/scripts/emu-root.sh --reset &&) /project/scripts/emu-test.sh $(if $(APP),$(APP),$(notdir $(patsubst %/,%,$(dir $(wildcard $(APPS_DIR)/*/test.sh)))))'
 
 EMU-SHOTS := Take the screenshots of an application in the emulated desktop from the timeline apps/<app>/shots.txt into build/shots/<app>/ (APP="mutt-hildon"; COMPARE=dir compares with older images)
 emu-shots:
-	$(INSIDE) /project/scripts/emu-shots.sh $(if $(COMPARE),--compare $(COMPARE)) $(if $(APP),$(APP),$(notdir $(patsubst %/,%,$(dir $(wildcard apps/*/shots.txt)))))
+	$(INSIDE) env APPS_DIR=/project/$(APPS_DIR) /project/scripts/emu-shots.sh $(if $(COMPARE),--compare $(COMPARE)) $(if $(APP),$(APP),$(notdir $(patsubst %/,%,$(dir $(wildcard $(APPS_DIR)/*/shots.txt)))))
 
 LOCALE-OVERLAY := The locale archive (UTF-8 locales, glibc 2.5) into ./sysroot (once; tmux and other programs need it under qemu-user): from your phone when DEVICE is set, otherwise downloaded (package posix-locales)
 locale-overlay:
@@ -70,9 +73,20 @@ SCRIPT ?= src/python3/hildon/proof.py
 # SCRIPT=apps/<app>/... of an application that has apps/<app>/hildon-run.sh means APP=<app> (it needs the demo home)
 ifeq ($(APP),)
 SCRIPTAPP := $(word 2,$(subst /, ,$(SCRIPT)))
-ifneq ($(and $(filter apps/%,$(SCRIPT)),$(wildcard apps/$(SCRIPTAPP)/hildon-run.sh)),)
+ifneq ($(and $(filter $(APPS_DIR)/%,$(SCRIPT)),$(wildcard $(APPS_DIR)/$(SCRIPTAPP)/hildon-run.sh)),)
 APP := $(SCRIPTAPP)
 endif
 endif
 hildon-run:
-	$(INSIDE) env SHOT=$(SHOT) VNC=$(VNC) PY2=$(PY2) APP=$(APP) HILDON_DEVSHELL_SCRIPT=$(DEVSHELL_SCRIPT) HILDON_DEVSHELL_DEBUG=$(DEVSHELL_DEBUG) /project/scripts/hildon-run.sh $(if $(APP),,/project/$(SCRIPT))
+	$(INSIDE) env APPS_DIR=/project/$(APPS_DIR) SHOT=$(SHOT) VNC=$(VNC) PY2=$(PY2) APP=$(APP) HILDON_DEVSHELL_SCRIPT=$(DEVSHELL_SCRIPT) HILDON_DEVSHELL_DEBUG=$(DEVSHELL_DEBUG) /project/scripts/hildon-run.sh $(if $(APP),,/project/$(SCRIPT))
+
+CLEAN := Remove the build output (./build: the emulator root, screenshots, programs built by the scripts); the sysroot and the workshop stay
+clean:
+	rm -rf build
+
+CLEAN-ALL := Back to nothing: remove ./build, ./sysroot, ./downloads and the workshop container (the definition stays), so that make up toolchain sysroot starts from scratch. Asks first, YES=1 skips the question
+clean-all:
+	@if [ -z "$(YES)" ]; then printf '$(YELLOW)This removes build/, sysroot/, downloads/ and the workshop %s (a big sysroot and toolchain take a long time to get again). Continue? [y/N] $(RESET)' '$(WS)'; read a; [ "$$a" = y ] || { echo aborted; exit 1; }; fi
+	-$(WORKSHOP) remove $(WS)
+	rm -rf build sysroot downloads
+	@printf '$(GREEN)Clean. Start again with: make up toolchain sysroot arm-python hildon-overlay locale-overlay$(RESET)\n'

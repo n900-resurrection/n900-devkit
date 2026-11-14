@@ -12,6 +12,7 @@
 # What it cannot do: hardware (keyboard, sensors, the real top bar of hildon-desktop), anything that needs a service that is not mocked.
 set -uo pipefail
 PROJ="${PROJ:-/project}"
+APPS_DIR="${APPS_DIR:-$PROJ/apps}"
 D="${XDISPLAY:-:99}"
 COMPARE=""
 [ "${1:-}" = "--compare" ] && { COMPARE="$2"; shift 2; }
@@ -20,8 +21,8 @@ COMPARE=""
 stop_session() { env STOP=1 XDISPLAY="$D" "$PROJ/scripts/hildon-session.sh" >/dev/null 2>&1 || true; }
 fail=0
 for app in "$@"; do
-    f="$PROJ/apps/$app/shots.txt"
-    [ -f "$f" ] || { echo "== $app: no apps/$app/shots.txt"; continue; }
+    f="$APPS_DIR/$app/shots.txt"
+    [ -f "$f" ] || { echo "== $app: no $APPS_DIR/$app/shots.txt"; continue; }
     out="$PROJ/build/shots/$app"; mkdir -p "$out"
     find "$out" -maxdepth 1 -name '*.png' -delete
     last=$(awk '!/^[[:space:]]*(#|$)/ {t=$1} END {print t+0}' "$f")

@@ -9,6 +9,7 @@
 # system packages (htop 0.8.3 of Maemo), the device locale. That is the reason why this is a complement of `make test`, not its replacement.
 set -uo pipefail
 PROJ="${PROJ:-/project}"
+APPS_DIR="${APPS_DIR:-$PROJ/apps}"
 R="$PROJ/build/emu-root"
 SCRIPTS=0
 [ "${1:-}" = "--scripts" ] && { SCRIPTS=1; shift; }
@@ -51,8 +52,8 @@ cp -L /etc/hosts "$R/etc/hosts" 2>/dev/null || true
 
 fail=0
 for app in "$@"; do
-    t="$PROJ/apps/$app/test.sh"
-    [ -f "$t" ] || { echo "== $app: no apps/$app/test.sh"; continue; }
+    t="$APPS_DIR/$app/test.sh"
+    [ -f "$t" ] || { echo "== $app: no $APPS_DIR/$app/test.sh"; continue; }
     pkg=$(sed -n 's/^need_pkg \([^ ]*\).*/\1/p' "$t" | head -1); pkg="${pkg:-$app}"
     printf '\n== %s (package %s)\n' "$app" "$pkg"
     install_deb "$pkg" || { echo "no .deb of $pkg in build/deb: make debs APP=$app"; fail=$((fail+1)); continue; }

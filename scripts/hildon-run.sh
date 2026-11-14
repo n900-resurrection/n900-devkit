@@ -6,10 +6,11 @@
 #   PY2=1 scripts/hildon-run.sh script.py          ... run it with the phone's Python 2.5 + PyGTK + Hildon (like mutt-hildon)
 #   VNC=1 scripts/hildon-run.sh script.py           ... also serve the screen over VNC (port 5999 of the container)
 #   DESKTOP=1 ... with the window manager and the top bar (default for APP=, see hildon-session.sh)
-#   APP=mutt-hildon scripts/hildon-run.sh           ... run an application that has apps/<app>/hildon-run.sh (demo data, own settings)
+#   APP=mutt-hildon scripts/hildon-run.sh           ... run an application that has $APPS_DIR/<app>/hildon-run.sh (demo data, own settings; default apps/)
 # Needs: make python3 (the ARM interpreter), make hildon-overlay (theme/fonts from the phone), apt: xvfb x11vnc imagemagick.
 set -euo pipefail
-PROJ=/project
+PROJ="${PROJ:-/project}"
+APPS_DIR="${APPS_DIR:-$PROJ/apps}"       # the applications of the developer: <app>/hildon-run.sh describes how the emulator starts one (demo data, settings)
 SR="${SYSROOT:-$PROJ/sysroot}"
 D="${XDISPLAY:-:99}"
 # DESKTOP=1 (the default with APP=): window manager + top bar with the application switcher, launcher, clock, Menu and Back (hildon-session.sh)
@@ -29,9 +30,9 @@ fi
 export DBUS_SESSION_BUS_ADDRESS=unix:path=/tmp/hildon-emu-bus DBUS_SYSTEM_BUS_ADDRESS=unix:path=/tmp/hildon-emu-bus
 if [ -n "${APP:-}" ]; then
     # apps/<app>/hildon-run.sh may set PY2, HOME, RUN_SCRIPT and prepare data
-    [ -f "$PROJ/apps/$APP/hildon-run.sh" ] || { echo "apps/$APP/hildon-run.sh does not exist"; exit 1; }
+    [ -f "$APPS_DIR/$APP/hildon-run.sh" ] || { echo "$APPS_DIR/$APP/hildon-run.sh does not exist"; exit 1; }
     # shellcheck disable=SC1090
-    . "$PROJ/apps/$APP/hildon-run.sh"
+    . "$APPS_DIR/$APP/hildon-run.sh"
     set -- "${RUN_SCRIPT:?}" "$@"
 fi
 # The ARM Python 3: PY=<dir> wins; else the cross-built one (build/out/python3-*, nokia-n900-apps), else the one from the repository (make arm-python)

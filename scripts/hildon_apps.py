@@ -12,7 +12,9 @@ import shlex
 import subprocess
 
 PROJ = os.environ.get("PROJ", "/project")
-SR = os.path.join(PROJ, "sysroot")
+SR = os.environ.get("SYSROOT", os.path.join(PROJ, "sysroot"))
+APPS = os.environ.get("APPS_DIR", os.path.join(PROJ, "apps"))      # the applications of the developer (<app>/hildon-run.sh)
+DEBS = os.environ.get("DEB_DIR", os.path.join(PROJ, "build", "deb"))   # built packages that the launcher offers
 EMU = os.path.join(PROJ, "build", "emu")
 BUS = "unix:path=/tmp/hildon-emu-bus"     # private bus of the emulator (scripts/hildon-dbus.sh)
 ICON_DIRS = ("48x48", "64x64", "40x40", "scalable", "32x32", "26x26")
@@ -34,7 +36,7 @@ class Entry:
 
 def _newest_debs():
     best = {}
-    for f in glob.glob(os.path.join(PROJ, "build", "deb", "*.deb")):
+    for f in glob.glob(os.path.join(DEBS, "*.deb")):
         pkg = os.path.basename(f).split("_", 1)[0]
         if pkg not in best or os.path.getmtime(f) > os.path.getmtime(best[pkg]):
             best[pkg] = f
@@ -63,14 +65,14 @@ def _find_icon(root, name):
 
 def catalogue():
     dev = {}
-    for path in sorted(glob.glob(os.path.join(PROJ, "apps", "*", "hildon-run.sh"))):
+    for path in sorted(glob.glob(os.path.join(APPS, "*", "hildon-run.sh"))):
         d = os.path.basename(os.path.dirname(path))
         name = d
         with open(path, encoding="utf-8") as f:
             for line in f.readlines()[:10]:
                 if line.startswith("# Name:"):
                     name = line.split(":", 1)[1].strip()
-        icon = os.path.join(PROJ, "apps", d, "icons", "48.png")
+        icon = os.path.join(APPS, d, "icons", "48.png")
         dev[d] = Entry(name, icon if os.path.exists(icon) else None, app=d)
     entries = []
     for pkg, deb in sorted(_newest_debs().items()):

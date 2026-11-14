@@ -7,7 +7,7 @@
 #   VNC=1        ... also serve the screen over VNC (port 5999)
 # The applications run under qemu-user (scripts/hildon-run.sh) and appear below the bar (800x424), like on the N900.
 set -euo pipefail
-PROJ=/project
+PROJ="${PROJ:-/project}"
 D="${XDISPLAY:-:99}"
 export DISPLAY="$D" PROJ NO_AT_BRIDGE=1
 # FRESH=1 (make emulator, make hildon-run APP=...): end a previous session first (old screen, VNC, window manager, bar, programs);
