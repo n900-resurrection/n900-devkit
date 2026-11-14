@@ -1,0 +1,15 @@
+# Local settings (the defaults are in .env.default)
+.env
+
+# Workshop
+.workshop.lock
+
+# Sysroot, downloads and build output (recreated by make sysroot, make hildon-overlay ...)
+sysroot/
+downloads/
+build/
+
+# Python
+*.pyc
+*.pyo
+*__pycache__/
