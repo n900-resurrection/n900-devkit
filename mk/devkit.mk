@@ -26,7 +26,7 @@ enter:
 
 TOOLCHAIN := Install the armel cross toolchain and qemu-user
 toolchain:
-	$(WSRUN) toolchain
+	$(INSIDE) bash /project/scripts/toolchain.sh
 
 SYSROOT := Download the Fremantle SDK sysroot into ./sysroot
 sysroot:
