@@ -42,7 +42,23 @@ make emulator                        # the whole emulated desktop, VNC on port 5
 | `locale-overlay` | the locale archive (UTF-8 locales, glibc 2.5; programs such as tmux need it under qemu-user): downloaded, or from the phone with `DEVICE=...` |
 | `hildon-run` | show a GTK2/Hildon program: `SCRIPT=file.py`, `APP=<app>` (an application with `apps/<app>/hildon-run.sh`), `SHOT=file.png`, `VNC=1`, `PY2=1` |
 | `emulator`, `emulator-stop` | start/stop the emulated desktop (top bar, launcher, task switching) |
+| `clean` | remove `build/` (the emulator root, screenshots, programs built by the scripts) |
+| `clean-all` | back to nothing: remove `build/`, `sysroot/`, `downloads/` and the Workshop container (asks first, `YES=1` skips the question); then `make up toolchain sysroot ...` starts from scratch |
 | `emu-test`, `emu-shots` | run the tests of applications in an emulated phone, take screenshots from a timeline |
+
+## Your own application
+Put it in `apps/<name>/` of the kit (`APPS_DIR=<dir>` in the environment or on the command line changes the directory; relative to the project). The emulator knows an application when
+`apps/<name>/hildon-run.sh` exists (it sets `RUN_SCRIPT` and may prepare demo data, for example a home directory in `/tmp`; see the examples in nokia-n900-apps, `apps/mutt-hildon`):
+
+```sh
+# apps/myapp/hildon-run.sh
+# Name: My application
+RUN_SCRIPT=/project/apps/myapp/myapp.py
+```
+
+`make hildon-run APP=myapp SHOT=build/myapp.png` starts it in the desktop with the top bar, `make emulator` shows all such applications in the launcher; `apps/myapp/test.sh` and
+`shots.txt` are used by `make emu-test` and `make emu-shots`. Other settings of the scripts (environment): `PROJ` (the project in the Workshop, `/project`), `SYSROOT`, `DEB_DIR`
+(built `.deb` packages that the launcher offers), `HILDON_THEME`, `PY` (the ARM Python 3).
 
 ## With and without a phone
 The Hildon look of the N900 comes from Nokia's theme `beta` ("Digital Nature") and the font Nokia Sans. Both are in the `nokia-binaries` repository of the Maemo SDK, which falls under
