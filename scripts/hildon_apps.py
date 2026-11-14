@@ -18,6 +18,15 @@ BUS = "unix:path=/tmp/hildon-emu-bus"     # private bus of the emulator (scripts
 ICON_DIRS = ("48x48", "64x64", "40x40", "scalable", "32x32", "26x26")
 
 
+def theme_rc():
+    """The gtkrc of the theme of the emulated phone: beta (from a phone), else alpha, else the stand-in theme of the kit (see scripts/hildon-run.sh)."""
+    name = os.environ.get("HILDON_THEME", "")
+    for t in ([name] if name else []) + ["beta", "alpha", "devkit"]:
+        if os.path.isfile(os.path.join(SR, "usr/share/themes", t, "gtk-2.0/gtkrc")):
+            return "/usr/share/themes/%s/gtk-2.0/gtkrc" % t
+    return "/usr/share/themes/beta/gtk-2.0/gtkrc"
+
+
 class Entry:
     def __init__(self, name, icon=None, app=None, deb=None, exec_line=None):
         self.name, self.icon, self.app, self.deb, self.exec_line = name, icon, app, deb, exec_line
@@ -171,7 +180,7 @@ def launch_command(entry):
     env = dict(os.environ, DESKTOP="0", HILDON_SHELL="1")
     for k in ("PY2", "APP", "RUN_SCRIPT"):
         env.pop(k, None)
-    env.update(DBUS_SESSION_BUS_ADDRESS=BUS, DBUS_SYSTEM_BUS_ADDRESS=BUS, GTK2_RC_FILES="/usr/share/themes/beta/gtk-2.0/gtkrc")
+    env.update(DBUS_SESSION_BUS_ADDRESS=BUS, DBUS_SYSTEM_BUS_ADDRESS=BUS, GTK2_RC_FILES=theme_rc())
     if entry.app is not None or entry.exec_line is None and entry.deb is None:
         cmd = [os.path.join(PROJ, "scripts", "hildon-run.sh")]
         if entry.app:
@@ -187,7 +196,7 @@ def launch_command(entry):
     if terminal:
         argv = argv[2:]
     env.update(QEMU_LD_PREFIX=SR, LC_ALL="C", LANG="C", TERM="xterm", HOME=os.path.join(EMU, "home"),
-               DBUS_SESSION_BUS_ADDRESS=BUS, DBUS_SYSTEM_BUS_ADDRESS=BUS, GTK2_RC_FILES="/usr/share/themes/beta/gtk-2.0/gtkrc")
+               DBUS_SESSION_BUS_ADDRESS=BUS, DBUS_SYSTEM_BUS_ADDRESS=BUS, GTK2_RC_FILES=theme_rc())
     os.makedirs(env["HOME"], exist_ok=True)
     _ytdlp_standin(env["HOME"])
     cmd = _arm_command(argv, env)

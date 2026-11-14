@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=X-Hildon-Metatheme
+Name=n900-devkit stand-in
+Encoding=UTF-8
+
+[X-Hildon-Metatheme]
+GtkTheme=devkit
+IconTheme=default

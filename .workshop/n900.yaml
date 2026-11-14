@@ -10,4 +10,7 @@ actions:
   sysroot: python3 scripts/fetch_sysroot.py
   # Python 3.11 and hildonlite for the N900 (packages of the apt repository of the project) into sysroot/opt/python3: for the emulator, no cross-build
   arm-python: python3 scripts/fetch_python3.py
+  # The runtime files of the emulator without a phone (locale archive, icons, fontconfig, pango, host fonts, the stand-in theme): scripts/fetch_overlay.py
+  overlay: python3 scripts/fetch_overlay.py
+  overlay-locale: python3 scripts/fetch_overlay.py --locale
   cpp-hello: mkdir -p build && scripts/maemo-gcc -O2 -o build/hello src/c/hello/hello.c && file build/hello && qemu-arm -L /project/sysroot build/hello

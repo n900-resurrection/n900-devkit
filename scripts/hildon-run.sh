@@ -10,7 +10,7 @@
 # Needs: make python3 (the ARM interpreter), make hildon-overlay (theme/fonts from the phone), apt: xvfb x11vnc imagemagick.
 set -euo pipefail
 PROJ=/project
-SR="$PROJ/sysroot"
+SR="${SYSROOT:-$PROJ/sysroot}"
 D="${XDISPLAY:-:99}"
 # DESKTOP=1 (the default with APP=): window manager + top bar with the application switcher, launcher, clock, Menu and Back (hildon-session.sh)
 if [ "${DESKTOP:-${APP:+1}}" = 1 ]; then
@@ -42,9 +42,15 @@ if [ -z "${PY:-}" ]; then
     : "${PY:?no ARM Python 3 found: make arm-python (downloads it from the apt repository), or build it with make python3 in nokia-n900-apps}"
 fi
 # LC_ALL=C: the glibc 2.5 of the sysroot cannot read the locale files of the host.
-# GTK2_RC_FILES: the theme the phone chooses through xsettings (hildon-desktop is not running here).
-export DISPLAY="$D" PYTHONHOME="$PY" QEMU_LD_PREFIX="$PROJ/sysroot" LC_ALL=C LANG=C \
-       GTK2_RC_FILES=/usr/share/themes/beta/gtk-2.0/gtkrc
+# GTK2_RC_FILES: the theme the phone chooses through xsettings (hildon-desktop is not running here): beta (from a phone, make hildon-overlay DEVICE=...),
+# else alpha, else the stand-in theme of the kit (make hildon-overlay without a phone); HILDON_THEME=<name> selects one.
+THEME="${HILDON_THEME:-}"
+if [ -z "$THEME" ]; then
+    for t in beta alpha devkit; do [ -f "$SR/usr/share/themes/$t/gtk-2.0/gtkrc" ] && { THEME=$t; break; }; done
+    : "${THEME:?no GTK theme in the sysroot: make hildon-overlay (from a phone with DEVICE=..., or downloaded without one)}"
+fi
+export DISPLAY="$D" PYTHONHOME="$PY" QEMU_LD_PREFIX="$SR" LC_ALL=C LANG=C \
+       GTK2_RC_FILES="/usr/share/themes/$THEME/gtk-2.0/gtkrc"
 if [ -n "${SHOT:-}" ]; then
     ( sleep "${SHOT_AFTER:-6}"; import -display "$D" -window root "$SHOT" ) &
 fi

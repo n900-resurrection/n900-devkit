@@ -1,0 +1,28 @@
+# Stand-in theme of n900-devkit for the emulated Hildon desktop: dark background, white text, orange selection, plain GTK drawing.
+# It is used when the sysroot has no Nokia theme (the themes "beta" and "alpha" come from a phone: make hildon-overlay DEVICE=...).
+# The colours follow the look of the N900 (black, white, the orange of the selection); the widgets are not drawn with the pixmaps of the Nokia theme.
+gtk-font-name = "DejaVu Sans 17"
+gtk-icon-theme-name = "hicolor"
+gtk-button-images = 0
+gtk-menu-images = 0
+
+style "devkit-dark" {
+    bg[NORMAL]        = "#101010"
+    bg[PRELIGHT]      = "#2d2d2d"
+    bg[ACTIVE]        = "#444444"
+    bg[SELECTED]      = "#f28c28"
+    bg[INSENSITIVE]   = "#101010"
+    fg[NORMAL]        = "#ffffff"
+    fg[PRELIGHT]      = "#ffffff"
+    fg[ACTIVE]        = "#ffffff"
+    fg[SELECTED]      = "#ffffff"
+    fg[INSENSITIVE]   = "#777777"
+    base[NORMAL]      = "#101010"
+    base[SELECTED]    = "#f28c28"
+    base[INSENSITIVE] = "#101010"
+    text[NORMAL]      = "#ffffff"
+    text[SELECTED]    = "#ffffff"
+    text[INSENSITIVE] = "#777777"
+}
+class "GtkWidget" style "devkit-dark"
+widget_class "*<GtkTextView>*" style "devkit-dark"

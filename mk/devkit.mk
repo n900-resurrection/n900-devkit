@@ -2,7 +2,7 @@
 # (n900-devkit). Included by the Makefile of the kit itself and by the main repository (nokia-n900-apps, where the kit is the folder devkit/).
 # Needs mk/common.mk (settings, INSIDE, colours, help) included first. Conventions as in mk/common.mk: a description variable named like the target.
 
-DEVKIT_TARGETS := up down status enter toolchain sysroot arm-python hello emu-test emu-shots locale-overlay hildon-overlay emulator emulator-stop hildon-run
+DEVKIT_TARGETS := up down status enter toolchain sysroot arm-python hello emu-test emu-shots locale-overlay hildon-overlay hildon-overlay-download emulator emulator-stop hildon-run
 .PHONY: $(DEVKIT_TARGETS)
 
 UP := Create and start the workshop (first run)
@@ -45,13 +45,17 @@ EMU-SHOTS := Take the screenshots of an application in the emulated desktop from
 emu-shots:
 	$(INSIDE) /project/scripts/emu-shots.sh $(if $(COMPARE),--compare $(COMPARE)) $(if $(APP),$(APP),$(notdir $(patsubst %/,%,$(dir $(wildcard apps/*/shots.txt)))))
 
-LOCALE-OVERLAY := Copy the locale archive (UTF-8 locales, glibc 2.5) from the phone into ./sysroot (once; tmux and other programs need it under qemu-user)
+LOCALE-OVERLAY := The locale archive (UTF-8 locales, glibc 2.5) into ./sysroot (once; tmux and other programs need it under qemu-user): from your phone when DEVICE is set, otherwise downloaded (package posix-locales)
 locale-overlay:
-	DEVICE=$(DEVICE) scripts/locale-overlay.sh
+	@if [ -n "$(DEVICE)" ]; then DEVICE=$(DEVICE) scripts/locale-overlay.sh; else $(WSRUN) overlay-locale; fi
 
-HILDON-OVERLAY := Copy the Hildon theme, fonts and icons from the phone into ./sysroot (once; for hildon-run)
+HILDON-OVERLAY := The runtime files of the Hildon emulator into ./sysroot (once): from your phone when DEVICE=user@address is set (the exact look: Nokia theme, fonts, Python 2.5), otherwise downloaded (hildon-overlay-download)
 hildon-overlay:
-	DEVICE=$(DEVICE) scripts/hildon-overlay.sh
+	@if [ -n "$(DEVICE)" ]; then DEVICE=$(DEVICE) scripts/hildon-overlay.sh; else $(MAKE) --no-print-directory hildon-overlay-download; fi
+
+HILDON-OVERLAY-DOWNLOAD := The runtime files of the emulator without a phone: icons, fontconfig, pango, GTK engine from the Maemo mirrors, DejaVu fonts of the host and a stand-in theme (close to the phone, not the same look)
+hildon-overlay-download:
+	$(WSRUN) overlay
 
 EMULATOR := Start the emulated Fremantle desktop (top bar, launcher, task switching): make emulator (VNC on port 5999 of the Workshop, address is printed)
 emulator:

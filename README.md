@@ -9,8 +9,8 @@ Everything you need to **write and try an application for the Nokia N900 (Maemo 
   runs under `qemu-user` against the real GTK 2.14 / Hildon libraries on a virtual 800x480 screen, with a top bar, task switcher and launcher like the N900's,
 - test scripts that run in an emulated phone (`make emu-test`).
 
-Nothing from Nokia is stored in this repository: the theme, fonts and icons of the phone are copied **from your own N900** once (`make hildon-overlay`),
-the SDK sysroot comes from the community mirrors (`scripts/fetch_sysroot.py`).
+Nothing from Nokia is stored in this repository, and **no phone is needed**: the sysroot, the ARM Python and the runtime files of the emulator are downloaded
+(from the community mirrors of Maemo and the apt repository of the project). With a phone you can get the exact look (below).
 
 ## Quick start
 
@@ -22,7 +22,8 @@ cd n900-devkit
 make up toolchain sysroot            # the container, the toolchain, the sysroot (once, a few hundred MB)
 make hello                           # build and run a C program for the N900 under qemu-user
 make arm-python                      # Python 3.11 and hildonlite for the N900, from the apt repository of the project (no cross-build)
-make hildon-overlay DEVICE=root@192.168.1.50    # theme, fonts, icons and Python 2.5 from your phone (once, ~100 MB)
+make hildon-overlay                  # icons, fontconfig, pango and more from the Maemo mirrors + a stand-in theme (once; no phone needed)
+make locale-overlay                  # the glibc 2.5 locale archive, downloaded (needed by programs such as tmux)
 make hildon-run SCRIPT=src/python3/hildon/proof.py SHOT=build/shot.png   # a Hildon program on the virtual screen, screenshot after 6 s
 make emulator                        # the whole emulated desktop, VNC on port 5999 of the container
 ```
@@ -36,11 +37,19 @@ make emulator                        # the whole emulated desktop, VNC on port 5
 | `sysroot` | download the Fremantle SDK sysroot into `./sysroot` (only the needed packages) |
 | `arm-python` | download Python 3.11 and `python3-hildonlite` (and what they need) from the [apt repository](https://n900-resurrection.github.io/) into `sysroot/opt/python3`; `hildon-run` uses it |
 | `hello` | build and run `src/c/hello/hello.c` (qemu-user, glibc 2.5) |
-| `hildon-overlay` | copy the Hildon theme, fonts, icons and Python 2.5 from the phone into the sysroot |
-| `locale-overlay` | copy the locale archive from the phone (programs such as tmux need it under qemu-user) |
+| `hildon-overlay` | the runtime files of the emulator into the sysroot: without a phone downloaded (icons, fontconfig, pango, the GTK engine, DejaVu fonts of the host, the stand-in theme of the kit); with `DEVICE=user@address` copied from your own N900 (the Nokia theme and fonts, Python 2.5) |
+| `hildon-overlay-download` | the download variant explicitly |
+| `locale-overlay` | the locale archive (UTF-8 locales, glibc 2.5; programs such as tmux need it under qemu-user): downloaded, or from the phone with `DEVICE=...` |
 | `hildon-run` | show a GTK2/Hildon program: `SCRIPT=file.py`, `APP=<app>` (an application with `apps/<app>/hildon-run.sh`), `SHOT=file.png`, `VNC=1`, `PY2=1` |
 | `emulator`, `emulator-stop` | start/stop the emulated desktop (top bar, launcher, task switching) |
 | `emu-test`, `emu-shots` | run the tests of applications in an emulated phone, take screenshots from a timeline |
+
+## With and without a phone
+The Hildon look of the N900 comes from Nokia's theme `beta` ("Digital Nature") and the font Nokia Sans. Both are in the `nokia-binaries` repository of the Maemo SDK, which falls under
+Nokia's licence, and the public mirrors do not serve the files. So **without a phone** the emulator draws with a stand-in: a dark theme of the kit (`theme/devkit`: black, white text,
+orange selection) and DejaVu Sans, with the real GTK 2.14 / Hildon libraries and layout. That is good for the layout and the logic of your program, not for pixel comparison.
+With **your own N900** run `make hildon-overlay DEVICE=root@<address>` once (~100 MB): the theme `beta`, the Nokia fonts and Python 2.5 with PyGTK are copied from it, and the emulator
+uses them from then on (`HILDON_THEME=<name>` selects another installed theme). Programs for Python 2.5 with PyGTK (`PY2=1`) need that phone copy, their bindings are not on the mirrors.
 
 ## What is where
 
@@ -50,6 +59,8 @@ Makefile, mk/common.mk, mk/devkit.mk   the targets above (mk/ is shared with nok
 scripts/maemo-gcc, maemo-compat.h ...  the cross compiler wrapper and compatibility headers for glibc 2.5
 scripts/fetch_sysroot.py               the sysroot from the mirrors (maemo.plan9.de, maemo.viniciuspaes.com)
 scripts/fetch_python3.py               the ARM Python 3 and hildonlite from our apt repository (SHA-256 checked)
+scripts/fetch_overlay.py               the runtime files of the emulator without a phone (locale archive, icons, fontconfig, pango, fonts)
+theme/devkit/                          the stand-in GTK theme used when the sysroot has no Nokia theme
 scripts/hildon-*.sh, hildon-shell.py   the emulator: virtual screen, window manager, top bar and launcher, D-Bus atrapy for Maemo services
 scripts/hildon-stubs/                  replacements of python-osso and conic (they need the Maemo system bus)
 scripts/qemu-*, emu-*                  qemu-user helpers and the tests in an emulated phone
