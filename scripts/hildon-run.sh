@@ -52,6 +52,13 @@ if [ -z "$THEME" ]; then
 fi
 export DISPLAY="$D" PYTHONHOME="$PY" QEMU_LD_PREFIX="$SR" LC_ALL=C LANG=C \
        GTK2_RC_FILES="/usr/share/themes/$THEME/gtk-2.0/gtkrc"
+# sapwood-server: the GTK engine of the Fremantle themes (sapwood) asks this server for the images of the skin; without it buttons, entries and
+# sliders are drawn as nothing but their text. The phone runs it from the session; here it is started once per screen (it ends with the session).
+SW="$SR/usr/lib/sapwood/sapwood-server"
+if [ -x "$SW" ] && ! pgrep -f '[s]apwood-server' >/dev/null; then
+    DISPLAY="$D" QEMU_LD_PREFIX="$SR" LC_ALL=C setsid "$SW" >/tmp/sapwood-server.log 2>&1 &
+    sleep 1
+fi
 if [ -n "${SHOT:-}" ]; then
     ( sleep "${SHOT_AFTER:-6}"; import -display "$D" -window root "$SHOT" ) &
 fi
