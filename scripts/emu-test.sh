@@ -57,6 +57,10 @@ for app in "$@"; do
     pkg=$(sed -n 's/^need_pkg \([^ ]*\).*/\1/p' "$t" | head -1); pkg="${pkg:-$app}"
     printf '\n== %s (package %s)\n' "$app" "$pkg"
     install_deb "$pkg" || { echo "no .deb of $pkg in build/deb: make debs APP=$app"; fail=$((fail+1)); continue; }
+    # other packages the test needs (a line "# emu-needs: screen tmux" in test.sh), e.g. a terminal multiplexer to drive a text interface
+    for extra in $(sed -n 's/^# emu-needs: //p' "$t"); do
+        install_deb "$extra" || echo "  (no .deb of $extra in build/deb: the tests that need it are skipped)"
+    done
     cat "$PROJ/tests/lib.sh" "$t" | sudo env QEMU_UNAME=2.6.28 HOME=/root TERM=xterm LC_ALL=C PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin \
         unshare -m bash -c '
             R=$1; shift
