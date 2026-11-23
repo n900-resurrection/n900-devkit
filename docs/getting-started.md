@@ -11,7 +11,12 @@ a container with the cross toolchain, the Fremantle sysroot, and an emulated Hil
   ```
 - About 2 GB of disk for the container, the sysroot and the downloads, and an internet connection (the mirrors of Maemo and the apt repository of the project).
 - On the host: `make`, `git`, `python3`. Everything else is installed inside the container.
-- If Docker runs on the same host, its `FORWARD DROP` rule can block the network of the container (`workshopbr0`); allow it in the `DOCKER-USER` chain.
+- If Docker runs on the same host, its `FORWARD DROP` rule can block the network of the container (`workshopbr0`); allow it in the `DOCKER-USER` chain (the symptom: downloads in the container time out, `workshop warnings` names the bridge `workshopbr0`):
+  ```sh
+  sudo nft insert rule ip filter DOCKER-USER iifname workshopbr0 accept
+  sudo nft insert rule ip filter DOCKER-USER oifname workshopbr0 ct state related,established accept
+  ```
+  The rules are lost when Docker or the computer restarts. Test: `workshop -p . exec n900 -- curl -sSI -m 10 https://github.com`.
 
 ## Quick start
 ```sh
