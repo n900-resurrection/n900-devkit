@@ -1,7 +1,7 @@
 #!/bin/bash
 # Run INSIDE the Workshop: start an ARM program (python3 script or any binary) with the real GTK 2.14 / Hildon libraries
 # of the Fremantle sysroot under qemu-user, on a virtual X screen of the container (Xvfb, 800x480 like the N900).
-#   scripts/hildon-run.sh script.py                 ... run a Python 3 script (the cross-built ARM python3)
+#   scripts/hildon-run.sh script.py                 ... run a Python 3 script (the cross-built ARM python3); an ARM binary (ELF) is run directly
 #   SHOT=out.png SHOT_AFTER=6 scripts/hildon-run.sh script.py   ... screenshot after 6 s
 #   PY2=1 scripts/hildon-run.sh script.py          ... run it with the phone's Python 2.5 + PyGTK + Hildon (like mutt-hildon)
 #   VNC=1 scripts/hildon-run.sh script.py           ... also serve the screen over VNC (port 5999 of the container)
@@ -69,6 +69,8 @@ if [ -n "${PY2:-}" ]; then
     export HILDON_DEVSHELL=1   # buttons Menu/Back + keys F4/Escape (hildon-stubs/sitecustomize.py)
     exec qemu-arm "$PROJ/sysroot/usr/bin/python2.5" "$@"
 fi
+# an ARM program (an ELF file, for example a GTK program built with scripts/maemo-gcc) is started directly under qemu-user, in the same environment
+if [ "$(head -c4 "${1:-/dev/null}" 2>/dev/null | tail -c3)" = ELF ]; then exec qemu-arm "$@"; fi
 # hildonlite comes with the interpreter from the repository (make arm-python); a cross-built Python (nokia-n900-apps) has none, so the site-packages of the
 # downloaded one are added when they are there
 SP="$SR/opt/python3/lib/python3.11/site-packages"

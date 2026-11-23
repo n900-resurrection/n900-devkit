@@ -56,6 +56,13 @@ DEFAULT_ROOTS = [
     "libhildon1-dev",
     "libsdl1.2-dev",
     "libreadline5-dev",
+    # SDL 2 (apps/sdl2): sound through ALSA or PulseAudio, X11 extensions (all are loaded at run time and optional)
+    "libasound2-dev",
+    "libpulse-dev",
+    "libxrandr-dev",
+    "libxcursor-dev",
+    "libxi-dev",
+    "libxfixes-dev",
 ]
 DELAY = 0.3  # seconds between downloads, to go easy on somebody else's server
 
