@@ -13,7 +13,7 @@ TMO=${WS_TIMEOUT:-7200}; GRACE=${WS_GRACE:-5}
 # A workshop belongs to a project folder: a clone, or the folder devkit/ of another repository, has its own and starts with none ("Off").
 state=$(workshop -p "$ROOT" list 2>/dev/null | awk -v w="$WS" '$1 == w {print $2}')
 if [ -z "$state" ] || [ "$state" = Off ]; then
-    echo "ws-exec: the workshop $WS of the project $ROOT is not launched. Run: make up toolchain sysroot arm-python hildon-overlay locale-overlay" >&2
+    echo "ws-exec: the workshop $WS of the project $ROOT is not launched. Run: make ws-ready   (the emulator also needs: make emu-ready)" >&2
     echo "         (a project folder has its own workshop; to use the one of another folder, run make there)" >&2
     exit 1
 fi

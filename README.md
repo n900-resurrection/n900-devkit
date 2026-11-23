@@ -34,7 +34,7 @@ You need Ubuntu (or another Linux) with [Workshop](https://snapcraft.io/workshop
 ```sh
 git clone https://github.com/n900-resurrection/n900-devkit.git
 cd n900-devkit
-make up toolchain sysroot            # the container, the toolchain, the sysroot (once, a few hundred MB)
+make init                            # everything at once (below), or just start: every target creates what it needs by itself
 make hello                           # build and run a C program for the N900 under qemu-user
 make arm-python                      # Python 3.11 and hildonlite for the N900, from the apt repository of the project (no cross-build)
 make hildon-overlay                  # icons, fontconfig, pango and more from the Maemo mirrors + a stand-in theme (once; no phone needed)
@@ -45,8 +45,11 @@ make emulator                        # the whole emulated desktop, VNC on port 5
 
 `make` without arguments lists the targets.
 
+The environment is a set of dependencies (`mk/ready.mk`): building (`make hello`, an application of a project that uses the kit) needs `ws-ready` = the workshop, the toolchain and the sysroot; the emulator and its tests need `emu-ready` = `ws-ready` + `arm-python` + `hildon-overlay` + `locale-overlay`. A missing step is done when a target needs it, a finished one is skipped (stamps in `sysroot/.stamps`), `make init` does it all, and `make toolchain`, `make sysroot` ... repeat one step. Only the host tools (LXD, Workshop) are installed by hand.
+
 | Target | What it does |
 |---|---|
+| `ws-ready`, `emu-ready`, `init` | prepare what is missing: to build / to run in the emulator / both (see above) |
 | `up`, `down`, `status`, `enter` | create/start, stop, show and enter the Workshop |
 | `toolchain` | install the armel cross toolchain and `qemu-user` in it |
 | `sysroot` | download the Fremantle SDK sysroot into `./sysroot` (only the needed packages) |

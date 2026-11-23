@@ -44,3 +44,6 @@ HELP := Show the available targets and their descriptions
 help:
 	@printf '$(BOLD)Usage:$(RESET) make $(CYAN)<target>$(RESET)\n\n'
 	@$(foreach t,$(TARGETS),printf '$(CYAN)%-11s$(RESET) %s\n' '$(t)' '$($(call uc,$(t)))';)
+
+# The environment (workshop, toolchain, sysroot, emulator files) as dependencies: ws-ready, emu-ready, init (see ready.mk)
+include $(ROOT)/mk/ready.mk
