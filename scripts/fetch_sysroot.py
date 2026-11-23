@@ -63,6 +63,7 @@ DEFAULT_ROOTS = [
     "libxcursor-dev",
     "libxi-dev",
     "libxfixes-dev",
+    "libjpeg62-dev",   # NXEngine-evo asks for libjpeg at configure time
 ]
 DELAY = 0.3  # seconds between downloads, to go easy on somebody else's server
 
